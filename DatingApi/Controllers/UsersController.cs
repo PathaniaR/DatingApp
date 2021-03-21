@@ -21,7 +21,7 @@ namespace DatingApi.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<AppUser>>> GetUsers()
         {
-            var users= await _context.AppUsers.ToListAsync();
+            var users= await _context.AppUsers.ToListAsync();   
             return users;
         }
 
