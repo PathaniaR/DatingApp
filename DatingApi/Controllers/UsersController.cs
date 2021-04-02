@@ -8,9 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DatingApi.Controllers
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class UsersController : ControllerBase
+    public class UsersController : BaseApiController
     {
         private readonly DatingDataContext _context;
         public UsersController(DatingDataContext datingDataContext)
