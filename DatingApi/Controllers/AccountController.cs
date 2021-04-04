@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using DatingApi.Data;
 using DatingApi.DTOs;
 using DatingApi.Entities;
+using DatingApi.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,13 +13,15 @@ namespace DatingApi.Controllers
     public class AccountController : BaseApiController
     {
         private readonly DatingDataContext _context;
-        public AccountController(DatingDataContext context)
+        private readonly ITokenService _tokenService;
+        public AccountController(DatingDataContext context,ITokenService tokenService)
         {
             _context=context;
+            _tokenService=tokenService;
         }
 
         [HttpPost("register")]
-        public async Task<ActionResult<AppUser>> Register([FromBody] RegisterDto dto)
+        public async Task<ActionResult<UserDto>> Register([FromBody] RegisterDto dto)
         {
            using var hmac=new HMACSHA512();
            if(await UserExists(dto.Username))
@@ -34,11 +37,11 @@ namespace DatingApi.Controllers
 
            _context.AppUsers.Add(user);
            await _context.SaveChangesAsync();
-           return user;
+           return new UserDto(){Username =user.UserName,Token=_tokenService.CreateToken(user)};
         }
 
         [HttpPost("login")]
-        public async Task<ActionResult<AppUser>> Login([FromBody] RegisterDto dto)
+        public async Task<ActionResult<UserDto>> Login([FromBody] RegisterDto dto)
         {
              var user = await _context.AppUsers
                                    .SingleOrDefaultAsync<AppUser>(z=>z.UserName == dto.Username);
@@ -58,7 +61,7 @@ namespace DatingApi.Controllers
                 }
              }
 
-             return user;
+            return new UserDto(){Username =user.UserName,Token=_tokenService.CreateToken(user)};
         }
 
 
