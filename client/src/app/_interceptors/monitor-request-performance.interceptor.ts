@@ -22,7 +22,7 @@ export class MonitorRequestPerformanceInterceptor implements HttpInterceptor {
     );
   }
   private logRequestTime(startTime: number, url: string, method: string) {
-    const requestDuration = `${performance.now() - startTime}`;
-    console.log(`HTTP ${method} ${url} - ${requestDuration} milliseconds`);
+    const totalSecondsConsumed= (performance.now() - startTime)/1000;
+    console.log(`HTTP ${method} ${url} - ${totalSecondsConsumed} seconds`);
   }
 }
