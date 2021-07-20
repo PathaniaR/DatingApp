@@ -21,13 +21,13 @@ namespace DatingApi.Controllers
         }
 
         [HttpGet]
-        [AllowAnonymous]
+        [Authorize]
         public async Task<ActionResult<IEnumerable<MemberDto>>> GetUsers()
         {
             var users= await this._repository.GetMembersAsync();
             return Ok(users);
         }
-        [Authorize] 
+       [Authorize]
         [HttpGet("{username}")]
         public async Task<ActionResult<MemberDto>> GetUser(string username)
         {
