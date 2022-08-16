@@ -4,6 +4,8 @@ using System.Threading.Tasks;
 using AutoMapper;
 using DatingApi.DTOs;
 using DatingApi.Entities;
+using DatingApi.Extensions;
+using DatingApi.Helpers;
 using DatingApi.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -11,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DatingApi.Controllers
 {
+    //[Authorize]
     public class UsersController : BaseApiController
     {
         private readonly IUserRepository _repository;
@@ -22,10 +25,16 @@ namespace DatingApi.Controllers
         }
 
         [HttpGet]
-        [Authorize]
-        public async Task<ActionResult<IEnumerable<MemberDto>>> GetUsers()
+        public async Task<ActionResult<IEnumerable<MemberDto>>> GetUsers([FromQuery]UserParams userParams)
         {
-            var users= await this._repository.GetMembersAsync();
+            //var user = await _repository.GetUserByNameAsync(User.GetUserName());
+            //userParams.CurrentUsername = user.UserName;
+            //if (string.IsNullOrEmpty(userParams.Gender))
+            //{
+            //    userParams.Gender = user.Gender == "male" ? "female" : "male";
+            //}
+            var users= await this._repository.GetMembersAsync(userParams);
+            Response.AddPaginationHeader(users.CurrentPage,users.PageSize,users.TotalCount,users.TotalPages);
             return Ok(users);
         }
        [Authorize]
@@ -39,13 +48,13 @@ namespace DatingApi.Controllers
         [HttpPut()]
         public async Task<IActionResult> UpdateUser(MemberUpdateDto memberUpdateDto)
         {
-           var userName=User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-           var user=await _repository.GetUserByNameAsync(userName);
+            var userName = User.GetUserName();
+            var user = await _repository.GetUserByNameAsync(userName);
 
-           _mapper.Map(memberUpdateDto,user);
-           _repository.Update(user);
-           if(await _repository.SaveAllAsync()) return NoContent();
-           return BadRequest("Failed to update a user");
+            _mapper.Map(memberUpdateDto, user);
+            _repository.Update(user);
+            if (await _repository.SaveAllAsync()) return NoContent();
+            return BadRequest("Failed to update a user");
         }
     }
 }

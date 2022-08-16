@@ -1,6 +1,8 @@
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using AutoMapper;
 using DatingApi.Data;
 using DatingApi.DTOs;
 using DatingApi.Entities;
@@ -14,10 +16,12 @@ namespace DatingApi.Controllers
     {
         private readonly DatingDataContext _context;
         private readonly ITokenService _tokenService;
-        public AccountController(DatingDataContext context,ITokenService tokenService)
+        private readonly IMapper _mapper;
+        public AccountController(DatingDataContext context,ITokenService tokenService,IMapper mapper)
         {
-            _context=context;
-            _tokenService=tokenService;
+            _context = context;
+            _tokenService = tokenService;
+            _mapper = mapper;
         }
 
         [HttpPost("register")]
@@ -28,20 +32,17 @@ namespace DatingApi.Controllers
            {
              return BadRequest("User Already Exists");
            }
-           var user=new AppUser()  
-           {
-             UserName= dto.Username.ToLower(),
-             PasswordHash=hmac.ComputeHash(Encoding.UTF8.GetBytes(dto.Password)),
-             PasswordSalt=hmac.Key
-           };
-
+           var user = _mapper.Map<AppUser>(dto);
+           user.UserName= dto.Username.ToLower();
+           user.PasswordHash=hmac.ComputeHash(Encoding.UTF8.GetBytes(dto.Password));
+           user.PasswordSalt=hmac.Key;
            _context.AppUsers.Add(user);
            await _context.SaveChangesAsync();
-           return new UserDto(){Username =user.UserName,Token=_tokenService.CreateToken(user)};
+           return new UserDto(){Username =user.UserName,Token=_tokenService.CreateToken(user),KnownAs = user.KnownAs};
         }
 
         [HttpPost("login")]
-        public async Task<ActionResult<UserDto>> Login([FromBody] RegisterDto dto)
+        public async Task<ActionResult<UserDto>> Login([FromBody] LoginDto dto)
         {
              var user = await _context.AppUsers
                                    .SingleOrDefaultAsync<AppUser>(z=>z.UserName == dto.Username);
@@ -61,7 +62,15 @@ namespace DatingApi.Controllers
                 }
              }
 
-            return new UserDto(){Username =user.UserName,Token=_tokenService.CreateToken(user)};
+            var userDto = new UserDto()
+            {
+                Username = user.UserName,
+                Token = _tokenService.CreateToken(user),
+                KnownAs = user.KnownAs,
+                Gender = user.Gender,
+                PhotoUrl = user.Photos?.FirstOrDefault(x => x.IsMain)?.Url
+            };
+            return userDto;
         }
 
 

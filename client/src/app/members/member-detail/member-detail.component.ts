@@ -4,6 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 import { NgxGalleryAnimation, NgxGalleryImage, NgxGalleryOptions } from '@kolkov/ngx-gallery';
 import { Member } from 'src/app/_models/member';
 import { MembersService } from 'src/app/_services/members.service';
+import { PresenceService } from 'src/app/_services/presence.service';
 
 @Component({
   selector: 'app-member-detail',
@@ -14,7 +15,7 @@ export class MemberDetailComponent implements OnInit {
   member:Member;
   galleryOptions: NgxGalleryOptions[];
   galleryImages: NgxGalleryImage[];
-  constructor(private memberService:MembersService,private activatedRoute: ActivatedRoute) { }
+  constructor(private presence : PresenceService, private memberService:MembersService,private activatedRoute: ActivatedRoute) { }
 
   ngOnInit(): void {
     this.loadMember();

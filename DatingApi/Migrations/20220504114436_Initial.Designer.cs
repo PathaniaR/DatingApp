@@ -4,14 +4,16 @@ using DatingApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace DatingApi.Data.Migrations
+namespace DatingApi.Migrations
 {
     [DbContext(typeof(DatingDataContext))]
-    partial class DatingDataContextModelSnapshot : ModelSnapshot
+    [Migration("20220504114436_Initial")]
+    partial class Initial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -96,6 +98,21 @@ namespace DatingApi.Data.Migrations
                     b.ToTable("Photos");
                 });
 
+            modelBuilder.Entity("DatingApi.Entities.UserLike", b =>
+                {
+                    b.Property<int>("SourceUserId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("LikedUserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("SourceUserId", "LikedUserId");
+
+                    b.HasIndex("LikedUserId");
+
+                    b.ToTable("Likes");
+                });
+
             modelBuilder.Entity("DatingApi.Entities.Photo", b =>
                 {
                     b.HasOne("DatingApi.Entities.AppUser", "AppUser")
@@ -107,8 +124,31 @@ namespace DatingApi.Data.Migrations
                     b.Navigation("AppUser");
                 });
 
+            modelBuilder.Entity("DatingApi.Entities.UserLike", b =>
+                {
+                    b.HasOne("DatingApi.Entities.AppUser", "LikedUser")
+                        .WithMany("LikedByUsers")
+                        .HasForeignKey("LikedUserId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("DatingApi.Entities.AppUser", "SourceUser")
+                        .WithMany("LikedUsers")
+                        .HasForeignKey("SourceUserId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("LikedUser");
+
+                    b.Navigation("SourceUser");
+                });
+
             modelBuilder.Entity("DatingApi.Entities.AppUser", b =>
                 {
+                    b.Navigation("LikedByUsers");
+
+                    b.Navigation("LikedUsers");
+
                     b.Navigation("Photos");
                 });
 #pragma warning restore 612, 618

@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using DatingApi.Entities;
+using System.Linq;
 
 namespace DatingApi.Data
 {
@@ -9,5 +10,33 @@ namespace DatingApi.Data
       {
       }
       public DbSet<AppUser> AppUsers { get; set; }
+      public DbSet<UserLike> Likes { get; set; }
+
+        public DbSet<Message> Messages { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+            builder.Entity<UserLike>()
+                               .HasKey(k => new { k.SourceUserId, k.LikedUserId });
+            builder.Entity<UserLike>()
+                           .HasOne(x => x.SourceUser)
+                           .WithMany(y => y.LikedUsers)
+                           .HasForeignKey(s => s.SourceUserId)
+                           .OnDelete(DeleteBehavior.NoAction);
+            builder.Entity<UserLike>()
+                            .HasOne(x => x.LikedUser)
+                            .WithMany(y => y.LikedByUsers)
+                            .HasForeignKey(s => s.LikedUserId)
+                            .OnDelete(DeleteBehavior.NoAction);
+            builder.Entity<Message>()
+                      .HasOne(u => u.Recipient)
+                      .WithMany(m => m.MessagesRecieved)  
+                      .OnDelete(DeleteBehavior.Restrict);
+            builder.Entity<Message>()
+                     .HasOne(u => u.Sender)
+                     .WithMany(m => m.MessagesSent)
+                     .OnDelete(DeleteBehavior.Restrict);
+        }
     }
 }
