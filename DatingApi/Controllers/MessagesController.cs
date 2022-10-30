@@ -55,21 +55,47 @@ namespace DatingApi.Controllers
             if (await messageRepository.SaveAllAsync()) return Ok(mapper.Map<MessageDto>(message));
             return BadRequest("Failed to send message");
         }
-
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<MessageDto>>> GetMessagesForUser([FromBody] MessageParams messageParams)
+        public async Task<ActionResult<IEnumerable<MessageDto>>> GetMessagesForUser([FromQuery] MessageParams messageParams)
         {
             messageParams.UserName = User.GetUserName();
             var messages = await messageRepository.GetMessagesForUser(messageParams);
             Response.AddPaginationHeader(messages.CurrentPage, messages.PageSize, messages.TotalCount, messages.TotalPages);
             return messages;
         }
-
         [HttpGet("thread/{username}")]
         public async Task<ActionResult<IEnumerable<MessageDto>>> GetMessageThread(string username)
         {
            var currentUserName = User.GetUserName();
             return Ok( await messageRepository.GetMessageThread(currentUserName, username));
         }
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> DeleteMessage(int id)
+        {
+            var userName = User.GetUserName();
+            var message = await this.messageRepository.GetMessage(id);
+            if(message.Sender.UserName!=userName && message.Recipient.UserName != userName)
+            {
+                return Unauthorized();
+            }
+            if(message.Sender.UserName == userName)
+            {
+                message.SenderDeleted = true;
+            }
+            if (message.Recipient.UserName == userName)
+            {
+                message.RecipientDeleted = true;
+            }
+            if(message.SenderDeleted && message.RecipientDeleted)
+            {
+                this.messageRepository.DeleteMessage(message);
+            }
+            if(await this.messageRepository.SaveAllAsync())
+            {
+                return Ok();
+            }
+            return BadRequest("Problem deleting a message");
+        }
+
     }
 }

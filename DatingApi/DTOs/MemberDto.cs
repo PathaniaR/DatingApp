@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using DatingApi.Entities;
 
 namespace DatingApi.DTOs
 {
+    [DebuggerDisplay("{UserName}")]
     public class MemberDto
     {
          public int Id { get; set; }
