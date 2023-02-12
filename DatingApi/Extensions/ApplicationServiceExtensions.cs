@@ -20,6 +20,7 @@ namespace DatingApi.Extensions
             services.AddScoped<ILikeRepository, LikeRepository>();
             services.AddScoped<IMessageRepository, MessageRepository>();
             services.AddAutoMapper(typeof(AutomapperProfiles).Assembly);
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddDbContext<DatingDataContext>(options =>
             {
                 options.UseSqlServer(config.GetConnectionString("AppConnection"));

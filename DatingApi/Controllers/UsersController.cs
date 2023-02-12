@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AutoMapper;
+using DatingApi.Authorization;
 using DatingApi.DTOs;
 using DatingApi.Entities;
 using DatingApi.Extensions;
@@ -25,6 +26,7 @@ namespace DatingApi.Controllers
         }
 
         [HttpGet]
+        //[HasPermission(Permission.ReadMember)]
         public async Task<ActionResult<IEnumerable<MemberDto>>> GetUsers([FromQuery]UserParams userParams)
         {
             //var user = await _repository.GetUserByNameAsync(User.GetUserName());

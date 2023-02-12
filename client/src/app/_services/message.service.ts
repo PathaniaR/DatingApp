@@ -35,7 +35,9 @@ export class MessageService {
   }
 
   stopHubConnection(){
+    if(this.hubConnection){
     this.hubConnection.stop();
+    }
   }
 
   getMessageThread(userName:string){
