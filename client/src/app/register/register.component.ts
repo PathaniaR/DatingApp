@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { AbstractControl, FormBuilder, FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
+import { AbstractControl, UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, ValidatorFn, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { AccountService } from '../_services/account.service';
@@ -11,10 +11,10 @@ import { AccountService } from '../_services/account.service';
 })
 export class RegisterComponent implements OnInit {
 @Output() cancelRegister:EventEmitter<boolean>=new EventEmitter<boolean>();   
- registerForm:FormGroup;
+ registerForm:UntypedFormGroup;
  errors : string[] = [];
 
-  constructor(private router : Router, private accountService:AccountService,private toastrService:ToastrService,private formBuilder : FormBuilder) { }
+  constructor(private router : Router, private accountService:AccountService,private toastrService:ToastrService,private formBuilder : UntypedFormBuilder) { }
 
   ngOnInit(): void {
     this.initializeForm();
@@ -22,14 +22,14 @@ export class RegisterComponent implements OnInit {
 
   initializeForm(){
     this.registerForm=this.formBuilder.group({
-      username : new FormControl('',Validators.required),
-      gender : new FormControl('Male'),
-      knownAs : new FormControl('',Validators.required),
-      dateOfBirth : new FormControl('',Validators.required),
-      city : new FormControl('',Validators.required),
-      country : new FormControl('',Validators.required),
-      password: new FormControl('',[Validators.required,Validators.minLength(4),Validators.maxLength(8)]),
-      confirmpassword: new FormControl('',[Validators.required,this.matchValues('password')])
+      username : new UntypedFormControl('',Validators.required),
+      gender : new UntypedFormControl('Male'),
+      knownAs : new UntypedFormControl('',Validators.required),
+      dateOfBirth : new UntypedFormControl('',Validators.required),
+      city : new UntypedFormControl('',Validators.required),
+      country : new UntypedFormControl('',Validators.required),
+      password: new UntypedFormControl('',[Validators.required,Validators.minLength(4),Validators.maxLength(8)]),
+      confirmpassword: new UntypedFormControl('',[Validators.required,this.matchValues('password')])
     });
 
     this.registerForm.controls.password.valueChanges.subscribe(x=>{
